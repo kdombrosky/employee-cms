@@ -330,7 +330,47 @@ function addRole() {
 };
 
 function updateRole() {
+    // get employee data
+    const sqlEmployee = `SELECT * FROM employee`
+    let employeeArr = [];
 
+    db.query(sqlEmployee, (err, rows) => {
+        if(err) throw err;
+
+        rows.forEach(({ id, first_name, last_name }) => {
+            employeeArr.push({ 'name': first_name + ' ' + last_name, 'id': id });
+        });
+        console.log(employeeArr);
+
+        inquirer.prompt([
+            {
+                type: 'list',
+                name: 'employeeName',
+                message: "Which employee would you like to update?",
+                choices: employeeArr
+            }
+        ])
+        .then(res => {
+            // filter out plain name into name with id
+            console.log(res.employeeName);
+            var newEmployeeArr = employeeArr.filter(function(el) {
+                return el.name === res.employeeName;
+            });
+            console.log(newEmployeeArr);
+
+            // // add role_id to employeeParams array
+            // employeeParams.push(newManagerArr[0].id);
+            
+                // const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
+            
+            // db.query(sql, employeeParams, (err, res) => {
+            //     if(err) throw err;
+            //     console.log('Employee added!' + `\n --------------------`);
+
+            //     init();
+            // });
+        });
+    })
 };
 
 
