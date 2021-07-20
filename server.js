@@ -331,7 +331,7 @@ function addRole() {
 
 function updateRole() {
     // get employee data
-    const sqlEmployee = `SELECT * FROM employee`
+    const sqlEmployee = `SELECT * FROM employee`;
     let employeeArr = [];
 
     db.query(sqlEmployee, (err, rows) => {
@@ -340,7 +340,6 @@ function updateRole() {
         rows.forEach(({ id, first_name, last_name }) => {
             employeeArr.push({ 'name': first_name + ' ' + last_name, 'id': id });
         });
-        console.log(employeeArr);
 
         inquirer.prompt([
             {
@@ -352,23 +351,52 @@ function updateRole() {
         ])
         .then(res => {
             // filter out plain name into name with id
-            console.log(res.employeeName);
             var newEmployeeArr = employeeArr.filter(function(el) {
                 return el.name === res.employeeName;
             });
-            console.log(newEmployeeArr);
+            //console.log(newEmployeeArr);
 
-            // // add role_id to employeeParams array
-            // employeeParams.push(newManagerArr[0].id);
-            
-                // const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
-            
-            // db.query(sql, employeeParams, (err, res) => {
-            //     if(err) throw err;
-            //     console.log('Employee added!' + `\n --------------------`);
+            // get all roles 
+            const sqlRoles = `SELECT * FROM role`;
+            let roleArr = [];
 
-            //     init();
-            // });
+            db.query(sqlRoles, (err, rows) => {
+                if(err) throw err;
+
+                rows.forEach(({ id, title }) => {
+                    roleArr.push({ 'name': title, 'id': id });
+                });
+
+
+                // inquirer about employees new role
+                inquirer.prompt([
+                    {
+                        type: 'list',
+                        name: 'roleName',
+                        message: "What is this employee's new role?",
+                        choices: roleArr
+                    }
+                ])
+                .then(res => {
+                    var newRoleArr = roleArr.filter(function(el) {
+                        return el.name === res.roleName;
+                    });
+
+                    // add role_id to newEmployeeArr array
+                    newEmployeeArr.push(newRoleArr[0].id);
+                    console.log(newEmployeeArr);
+
+                    const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
+                    const params = [ newRoleArr[0].id, newEmployeeArr[0].id];
+                    console.log(params);
+                    db.query(sql, params, (err, res) => {
+                        if(err) throw err;
+                        console.log('Employee updated!' + `\n --------------------`);
+        
+                        init();
+                    });
+                });
+            });
         });
     })
 };
