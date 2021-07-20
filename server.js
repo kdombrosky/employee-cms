@@ -178,6 +178,85 @@ function viewRoles() {
 
 function addEmployee() {
     console.log(`Adding employee info below: `);
+    inquirer.prompt(addEmployeeQ)
+    .then(res => {
+        // set first and last name to array 
+        let employeeParams = [ res.firstName, res.lastName ];
+
+        // get all role info
+        const sqlRoles = `SELECT role.id, role.title FROM role`;
+        let roleArr = [];
+
+        db.query(sqlRoles, (err, rows) => {
+            if (err) throw err; 
+            // add roles and their ids to array
+            rows.forEach(({ id, title }) => {
+                roleArr.push({ 'name': title, 'id': id });
+            });
+
+            inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'roleName',
+                    message: "What is this employee's job title?",
+                    choices: roleArr
+                }
+            ])
+            .then(res => {
+                // filter out plain name into name with id
+                var newRoleArr = roleArr.filter(function(el) {
+                    return el.name === res.roleName;
+                });
+
+                // add role_id to employeeParams array
+                employeeParams.push(newRoleArr[0].id);
+                
+                // get all manager info 
+                const sqlManagers = `SELECT * FROM employee`;
+                let managersArr = [];
+
+                db.query(sqlManagers, (err, rows) => {
+                    if(err) throw err;
+
+                    rows.forEach(({ id, first_name, last_name }) => {
+                        managersArr.push({ 'name': first_name + ' ' + last_name, 'id': id });
+                    });
+                    
+                    inquirer.prompt([
+                        {
+                            type: 'list',
+                            name: 'managerName',
+                            message: "Who is this employee's manager?",
+                            choices: managersArr
+                        }
+                    ])
+                    .then(res => {
+                        // filter out plain name into name with id
+                        var newManagerArr = managersArr.filter(function(el) {
+                            return el.name === res.managerName;
+                        });
+                        
+                        // add role_id to employeeParams array
+                        employeeParams.push(newManagerArr[0].id);
+                        
+                        const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
+                                    VALUES (?, ?, ?, ?)`;
+                        
+                        db.query(sql, employeeParams, (err, res) => {
+                            if(err) throw err;
+                            console.log('Employee added!' + `\n --------------------`);
+
+                            init();
+                        });
+                    });
+                });
+                
+            })
+            .catch(err => {
+                console.log(err);
+            });
+        });
+    });
 };
 
 function addDepartment() {
@@ -236,7 +315,7 @@ function addRole() {
                 db.query(sql, params, (err, result) => {
                     if (err) throw err;
                     
-                    console.log('Added ' + roleInfo.roleName + ' to roles!');
+                    console.log('Added ' + roleInfo.roleName + ' to roles!' + `\n---------------------------`);
                     init();
                 });
             })
