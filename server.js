@@ -4,7 +4,6 @@ const inquirer = require('inquirer');
 const cTable = require('console.table');
 
 
-
 // inquirer questions
 const initQuestion = [
     {
@@ -44,9 +43,50 @@ const addEmployeeQ = [
     }
 ];
 
-const addRoleQ = [];
+const addRoleQ = [
+    {
+        type: 'input',
+        name: 'roleName',
+        message: 'What is the name of the role you would like to add?',
+        validate: input => {
+            if(input) {
+                return true;
+            } else { 
+                console.log('You must provide a role name.');
+                return false;
+            }
+        }
+    },
+    {
+        title: 'input',
+        name: 'roleSalary',
+        message: 'What is the annual salary for this role?',
+        validate: input => {
+            if(input) {
+                return true;
+            } else { 
+                console.log('You must provide a salary.');
+                return false;
+            }
+        }
+    }
+];
 
-const addDepartmentQ = [];
+const addDepartmentQ = [
+    {
+        type: 'input',
+        name: 'deptName', 
+        message: 'What is the name of the department you would like to add?',
+        validate: input => {
+            if(input) {
+                return true;
+            } else { 
+                console.log('You must provide a department name.');
+                return false;
+            }
+        }
+    }
+];
 
 const updateRoleQ = [];
 
@@ -55,9 +95,8 @@ const updateRoleQ = [];
 function init() {
     console.log("Employee CMS");
     inquirer.prompt(initQuestion)
-    .then(response => {
-        console.log(`We made it \n`);
-        switch(response.initQues) {
+    .then(res => {
+        switch(res.initQues) {
             case 'View all employees':
                 viewEmployees();
                 break;
@@ -142,11 +181,73 @@ function addEmployee() {
 };
 
 function addDepartment() {
+    inquirer.prompt(addDepartmentQ)
+    .then(res => {
+        const sql = `INSERT INTO department (name)
+                    VALUES (?)`;
+        const params = [res.deptName];
 
+        db.query(sql, params, (err, rows) => {
+            if(err) throw err;
+
+            console.log('Added ' + res.deptName + ' to departments!');
+            init();
+        });
+    })
+    .catch(err => {
+        console.log(err);
+    });
 };
 
 function addRole() {
+    inquirer.prompt(addRoleQ)
+    .then(res => {
+        // set name and salary to roleInfo
+        let roleInfo = res;
 
+        // create array of departments to display in inquirer
+        const sqlDepartment = `SELECT name, id FROM department`;
+        let deptArr = [];
+
+        db.query(sqlDepartment, (err, rows) => {
+            if(err) throw err; 
+            rows.forEach(({ name, id }) => {
+                deptArr.push({ 'name':  name, 'id': id });
+            });
+
+            inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'deptName',
+                    message: 'Which department is this role in?',
+                    choices: deptArr
+                }
+            ])
+            .then(res => {
+                // filter out plain name into name with id
+                var newArray = deptArr.filter(function(el) {
+                    return el.name === res.deptName;
+                });
+                
+                const sql = `INSERT INTO role (title, salary, department_id)
+                            VALUES (?, ?, ?)`;
+                const params = [roleInfo.roleName, Number(roleInfo.roleSalary), newArray[0].id];
+                // add proper parameters to insert into query to create new role
+                db.query(sql, params, (err, result) => {
+                    if (err) throw err;
+                    
+                    console.log('Added ' + roleInfo.roleName + ' to roles!');
+                    init();
+                });
+            })
+            .catch(err => {
+                console.log(err);
+            });
+        });
+    })
+    .catch(err => {
+        console.log(err);
+    });
 };
 
 function updateRole() {
