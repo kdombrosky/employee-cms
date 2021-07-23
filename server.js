@@ -1,8 +1,6 @@
 const db = require('./db/connection.js');
-const mysql = require('mysql2');
 const inquirer = require('inquirer');
-const cTable = require('console.table');
-
+require('console.table');
 
 // inquirer questions
 const initQuestion = [
@@ -190,6 +188,7 @@ function addEmployee() {
         db.query(sqlRoles, (err, rows) => {
             if (err) throw err; 
             // add roles and their ids to array
+            
             rows.forEach(({ id, title }) => {
                 roleArr.push({ 'name': title, 'id': id });
             });
@@ -337,6 +336,7 @@ function updateRole() {
     db.query(sqlEmployee, (err, rows) => {
         if(err) throw err;
 
+        // to get all employees
         rows.forEach(({ id, first_name, last_name }) => {
             employeeArr.push({ 'name': first_name + ' ' + last_name, 'id': id });
         });
@@ -354,7 +354,6 @@ function updateRole() {
             var newEmployeeArr = employeeArr.filter(function(el) {
                 return el.name === res.employeeName;
             });
-            //console.log(newEmployeeArr);
 
             // get all roles 
             const sqlRoles = `SELECT * FROM role`;
@@ -366,7 +365,6 @@ function updateRole() {
                 rows.forEach(({ id, title }) => {
                     roleArr.push({ 'name': title, 'id': id });
                 });
-
 
                 // inquirer about employees new role
                 inquirer.prompt([
@@ -384,11 +382,9 @@ function updateRole() {
 
                     // add role_id to newEmployeeArr array
                     newEmployeeArr.push(newRoleArr[0].id);
-                    console.log(newEmployeeArr);
 
                     const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
                     const params = [ newRoleArr[0].id, newEmployeeArr[0].id];
-                    console.log(params);
                     db.query(sql, params, (err, res) => {
                         if(err) throw err;
                         console.log('Employee updated!' + `\n --------------------`);
