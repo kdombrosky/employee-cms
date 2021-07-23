@@ -3,7 +3,7 @@
 ## Description 
 This is a CLI app that allows users to manage their workplace employees and departments. Users can view all, and add departments, roles, and employees, as well as update an employee.  
 <br/><br/>
-Link to walkthrough: 
+Link to walkthrough: https://drive.google.com/file/d/1ie-VCmMynuPxSMUx50R3fTQUelWrgLf0/view 
 ![Employee CMS preview](https://github.com/kdombrosky/)
 <br/><br/>
 
@@ -20,6 +20,7 @@ Link to walkthrough:
 ## Usage
 Once all dependencies have finished installing, run "npm start" in the terminal to view options. 
 Use up and down arrow keys + enter key to select prompts. 
+Command CTRL+C to quit. 
 
 ## Contributing
 This project was made by Kayla Dombrosky 7/2021
