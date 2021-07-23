@@ -4,7 +4,7 @@
 This is a CLI app that allows users to manage their workplace employees and departments. Users can view all, and add departments, roles, and employees, as well as update an employee.  
 <br/><br/>
 Link to walkthrough: https://drive.google.com/file/d/1ie-VCmMynuPxSMUx50R3fTQUelWrgLf0/view 
-![Employee CMS preview](https://github.com/kdombrosky/)
+![Employee CMS preview](https://github.com/kdombrosky/employee-cms/blob/main/extra/CMS_preview.png?raw=true)
 <br/><br/>
 
 ## Table of Contents 
